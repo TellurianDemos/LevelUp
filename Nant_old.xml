@@ -1,0 +1,198 @@
+﻿<!-- <project default="help">
+       <property name="solution"                           unless="${property::exists('solution')}"                            value="ProjectX.sln" />    
+       <property name="configuration"                      unless="${property::exists('configuration')}"                       value="Debug"        />    
+       <property name="CCNetListenerFile"                  unless="${property::exists('CCNetListenerFile')}"                   value="listen.xml"    />    
+       <property name="msbuildverbose"                     unless="${property::exists('msbuildverbose')}"                      value="normal"       />    
+       <property name="CCNetLabel"                         unless="${property::exists('CCNetLabel')}"                          value="0.0.0.0"      />     
+       <property name="WantedCoveragePercent"              value="75"  />      
+
+       <property name="mstest_metadatafile"                value="${string::replace(solution, '.sln', '.vsmdi')}" />    
+       <property name="mstest_unit_test_file"              value="MStest_UnitTestResults.xml" />    
+       <property name="mstest_CoverageFile"                value="MStest_Cover.xml"  />
+       <property name="TurnCoverageFileIntoXml_exe"        value="C:\Tools\TurnCoverageFileIntoXml\TurnCoverageFileIntoXml.exe"  />
+       <property name="Simian_exe"                         value="c:\Tools\simian\ bin\simian-2.3.32.exe"  />
+       <property name="Simian_Threshold"                   value="10"  />
+       <property name="Simian_output"                      value="simian.xml"  />
+
+       <property overwrite="false" name="msbuildlogger"    value="C:\Program Files\CruiseControl.NET\server\MSBuildListener.dll"                     />
+       <property overwrite="false" name="versionInfofile"  value="VersionInfo.cs" />
+
+        <script language="C#" prefix="RuWi">
+             <references>
+                 <include name="System.Xml.dll" />
+                 <include name="System.dll" />
+             </references>
+             <imports>
+                 <import namespace="System.Text" />
+             </imports>
+             <code>
+               <![CDATA[
+                   [Function("UpdateVersionFile")]
+                   public static bool UpdateVersionFile(string inputFile, string newVersion, bool debugMode)
+                   {
+                       bool ok = true;
+                       try
+                       {
+                           System.IO.StreamReader versionFile = new System.IO.StreamReader(inputFile, System.Text.Encoding.ASCII);
+                           string line = "";
+                           System.Text.StringBuilder result = new StringBuilder();
+                           string searchPatternVersion = @"(\d+\.\d+\.\d+\.\d+)";
+                           string searchPatternAssemblyProduct = string.Format(@"AssemblyProduct\({0}(.*?)\{0}", "\"");
+                           string replacePatternAssemblyProduct = string.Format(@"AssemblyProduct({0}(Debug)${1}1{2}{0}", "\"", "{", "}");
+
+                           while (!versionFile.EndOfStream)
+                           {
+                               line = versionFile.ReadLine();
+
+                               if (System.Text.RegularExpressions.Regex.IsMatch(line, searchPatternVersion) && (line.Contains("AssemblyFileVersion")))
+                               {
+                                   line = System.Text.RegularExpressions.Regex.Replace(line, searchPatternVersion, newVersion);
+                               }
+
+                               if (debugMode && System.Text.RegularExpressions.Regex.IsMatch(line, searchPatternAssemblyProduct))
+                               {
+                                   line = System.Text.RegularExpressions.Regex.Replace(line, searchPatternAssemblyProduct, replacePatternAssemblyProduct);
+                               }
+
+                               result.AppendLine(line);
+                           }
+
+                           versionFile.Close();
+
+                           System.IO.StreamWriter updatedVersionfile = new System.IO.StreamWriter(inputFile);
+                           updatedVersionfile.Write(result.ToString());
+                           updatedVersionfile.Close();
+                       }
+                       catch (Exception ex)
+                       {
+                           ok = false;
+                           Console.WriteLine(ex.ToString());
+                       }
+                       return ok;
+                   }
+                   ]]>
+             </code>
+        </script>
+
+          <script language="C#" prefix="RuWi">
+               <code>
+                 <![CDATA[
+                     [Function("FindFile")]
+                     public static string FindFile(string folderName, string searchPattern)
+                     {
+                         var f =  System.IO.Directory.GetFiles(folderName, searchPattern, System.IO.SearchOption.AllDirectories);
+                         if (f.Length > 0)
+                         {
+                             return f[0];
+                         }
+
+                         return "";
+                     }                            
+                 ]]>
+           </code>
+       </script>       
+
+
+       <target name="help" >   
+           <echo message="Removed for keeping the file shorter." />
+       </target>
+
+       <target name="clean" description="deletes all created files">
+           <delete >
+               <fileset>
+                   <patternset >
+                       <include name="**/bin/**"  />
+                       <include name="**/obj/**"  />
+                       <include name="${mstest_unit_test_file}" />  
+                       <include name="${mstest_CoverageFile}" />  
+                   </patternset>
+               </fileset>
+           </delete>
+       </target>
+
+       <target name="adjustversion" description="Adjusts the version in the version.info file">
+           <if test="${not file::exists(versionInfofile)}">
+               <fail message="file: ${versionInfofile}  which must contains the version info was NOT found" />
+           </if>
+
+           <echo message="Setting version to ${CCNetLabel}" />        
+
+           <property name="debugMode" value = "False" />
+           <property name="debugMode" value = "True"  if="${configuration=='Debug'}"  />
+           <if test="${not RuWi::UpdateVersionFile(versionInfofile,CCNetLabel,debugMode)}">
+               <fail message="updating file: ${versionInfofile}  which must contains the version info failed" />
+           </if>
+       </target>
+
+       <target name="compile" description="compiles the solution in the wanted configuration" depends="adjustversion">                         
+           <msbuild  project="${solution}" >
+               <arg value="/p:Configuration=${configuration}" />
+               <arg value="/p:CCNetListenerFile=${CCNetListenerFile}" />
+               <arg value="/v:${msbuildverbose}" />
+               <arg value="/l:${msbuildlogger}" /> 
+           </msbuild>
+       </target>
+
+      <target name="unit_test" description="runs the unit tests"    depends="compile">
+          <if test="${file::exists(mstest_metadatafile)}">
+             <exec program="${mstest_exe}">
+                <arg value="/testmetadata:${mstest_metadatafile}" />
+                <arg value="/resultsfile:${mstest_unit_test_file}" />
+                <arg value="/testlist:UnitTests" />
+             </exec>             
+          </if>
+      </target>
+
+     <target name = "cover" description="runs the tests with coverage" >     
+          <if test="${file::exists('CodeCoverage.testsettings')}"> 
+
+             <exec program="${mstest_exe}" failonerror="false" resultproperty="testresult.temp" >
+               <arg value="/testmetadata:${mstest_metadatafile}" />
+               <arg value="/resultsfile:${mstest_unit_test_file}" />
+               <arg value="/testsettings:CodeCoverage.testsettings" />
+               <arg value="/testlist:UnitTests" />
+             </exec>             
+
+             <property name="TestsOK" value="false" unless="${int::parse(testresult.temp)==0}"/> 
+             <property name="DataCoverageFilePath" value="${RuWi::FindFile('cover_me','data.coverage')}"  />
+
+             <fail message="No data.coverage found in cover_me folder" unless="${string::get-length(DataCoverageFilePath)>0}" />
+
+             <echo message="DataCoverageFilePath : ${DataCoverageFilePath}" />               
+
+             <exec program="${TurnCoverageFileIntoXml_exe}" >
+                 <arg value="${DataCoverageFilePath}" />
+                 <arg value="cover_me\Out" />
+                 <arg value="${mstest_CoverageFile}" />
+                                 <arg value="${WantedCoveragePercent}" />
+             </exec>
+
+             <fail message="Failures reported in unit tests." unless="${TestsOK}" />
+         </if>
+     </target>
+
+     <target name="simian" description="find duplicate code" >        
+         <exec program="${Simian_exe}" failonerror="false">
+             <arg value="-includes=**/*.cs" />
+             <arg value="-excludes=**/*Designer.cs" />
+             <arg value="-excludes=**/*Generated.cs" />
+             <arg value="-excludes=**/*Reference.cs" />
+             <arg value="-excludes=**/obj/*" />
+             <arg value="-threshold=${Simian_Threshold}" />
+             <arg value="-formatter=xml:${Simian_output}" />
+         </exec>
+    </target> 
+
+   </project>    -->
+   
+   <?xml version="1.0"?>
+<project name="NAnt Examples" default="rebuild">
+    <target name="*">
+        <nant target="${target::get-current-target()}">
+            <buildfiles>
+                <include name="**/*.build" />
+                <exclude name="default.build" />
+            </buildfiles>
+        </nant>
+    </target>
+</project>

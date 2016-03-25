@@ -1,0 +1,26 @@
+﻿<div class="container auth-form" ng-init="loadConfirmation()">
+    <!--<div class="preloader"></div>-->
+    <form name="LoginForm" ng-submit="login(User)" class="form-horizontal center-block col-lg-12 col-md-12 col-sm-12 col-xs-12">
+
+        <div class="overlay uncapture" ng-show="!succeeded">
+
+            <div class="please-wait">
+                <div class="cssload-container">
+                    <div class="cssload-speeding-wheel"></div>
+                </div>
+                <span>Please Wait...</span>
+            </div>
+        </div>
+
+        <h2 class="h2 center-block text-center">Login</h2>
+
+        <input class="form-control" type="text" name="Email" ng-model="User.Email" placeholder="Email" required />
+
+        <input class="form-control" type="password" name="Password" ng-model="User.Password" placeholder="Password" required />
+
+        <input class="form-control btn-default" type="submit" value="Log In" ng-disabled="LoginForm.$invalid || !succeeded"/>
+    </form>
+    <a href="/#/register" class="btn-link">Register</a>
+    <a href="/#/forgotPassword" class="btn-link pull-right">Forgot password</a>
+    
+</div>

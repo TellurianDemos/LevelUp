@@ -1,0 +1,67 @@
+﻿<!DOCTYPE html>
+
+<html ng-app="Levelup">
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Levelup</title>
+    <link href="~/Content/bootstrap.css" rel="stylesheet" />
+    <link href="~/Content/style.css" rel="stylesheet"/>
+    <link href="~/Content/font-awesome.css" rel="stylesheet" />
+    <link href="~/Content/angular-ui-notification/angular-ui-notification.css" rel="stylesheet" />
+
+    <script src="~/scripts/angular.js"></script>
+    <script src="~/scripts/angular-route.min.js"></script>
+    <script src="~/scripts/angular-ui/ui-bootstrap.js"></script>
+    <script src="~/scripts/angular-ui-notification/angular-ui-notification.js"></script>
+    <script src="~/App/App.js"></script>
+    <script src="~/App/Constants/Config.js"></script>
+
+    <script src="~/App/Services/TokenService.js"></script>
+    <script src="~/App/Factories/AuthInterceptor.js"></script>
+    <script src="~/App/Services/UserService.js"></script>
+    
+    <script src="~/App/Controllers/AuthMiddlewareController.js"></script>
+    
+</head>
+<body ng-cloak>
+    <nav class="nav navbar-fixed-top" ng-controller="AuthMiddlewareController">
+        <div class="container">
+            <div class="logo"><a href="~/#/" class="menulink">LevelUp</a></div>
+            <ul ng-show="Data.IsAuthorized.value == true" class="left-menu">
+                <li><a href="~/#/" class="menulink">Home</a></li>
+                <li><a href="~/#/tests" class="menulink">Tests</a></li>
+                <li><a href="~/#/departments" class="menulink">Depts</a></li>
+            </ul>
+
+            <div ng-show="Data.IsAuthorized.value == true" class="auth-menu">
+                <a class="round uncapture btn-default profile-btn">{{Data.User.Email}}</a>
+
+                <div class="btn-group" uib-dropdown dropdown-append-to-body>
+                    <a id="btn-append-to-body" class="round uncapture btn-default profile-btn" uib-dropdown-toggle>
+                        <i class="fa fa-cog"></i>
+                    </a>
+                    <ul uib-dropdown-menu class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="btn-append-to-body">
+                        <li role="menuitem" ng-show="Data.User.IsAdmin"><a href="/#/">Go to admin</a></li>
+                        <li class="divider"></li>
+                        <li ng-click="logout()" role="menuitem"><a href="/#/login">Logout <i class="fa fa-sign-out"></i></a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div ng-view>
+    </div>
+
+    <script src="~/App/Services/HomeService.js"></script>
+    <script src="~/App/Services/TestsService.js"></script>
+    <script src="~/App/Services/DepartmentsService.js"></script>
+    <script src="~/App/Services/AuthService.js"></script>
+    
+
+    <script src="~/App/Controllers/HomeController.js"></script>
+    <script src="~/App/Controllers/TestsController.js"></script>
+    <script src="~/App/Controllers/DepartmentsController.js"></script>
+    <script src="~/App/Controllers/AuthController.js"></script>
+</body>
+</html>

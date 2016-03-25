@@ -1,0 +1,45 @@
+﻿<div class="container auth-form">
+    <form name="RegisterForm" ng-submit="register(User)" class="form-horizontal center-block  col-lg-12 col-md-12 col-sm-12 col-xs-12">
+
+        <div class="overlay uncapture" ng-show="!succeeded">
+
+            <div class="please-wait">
+                <div class="cssload-container">
+                    <div class="cssload-speeding-wheel"></div>
+                </div>
+                <span>Please Wait...</span>
+            </div>
+        </div>
+
+        <h2 class="h2 center-block text-center">Register</h2>
+
+        <input class="form-control" type="email" name="Email" ng-model="User.Email" placeholder="Email" ng-maxlength="100" ng-minlength="6" required />
+        <p class="bg-warning" ng-show="RegisterForm.Email.$touched && RegisterForm.Email.$required">Email is required</p>
+        <p class="bg-warning" ng-show="RegisterForm.Email.$touched && RegisterForm.Email.$error.maxlength">Maximum allowable length is 20</p>
+        <p class="bg-warning" ng-show="RegisterForm.Email.$touched && RegisterForm.Email.$error.minlength">Minimum allowable length is 6</p>
+        <p class="bg-warning" ng-show="RegisterForm.Email.$touched && RegisterForm.Email.$invalid">Email is invalid</p>
+
+        <input class="form-control" type="text" name="FullName" ng-model="User.FullName" placeholder="Full name" ng-maxlength="50" ng-minlength="6" required />
+        <p class="bg-warning" ng-show="RegisterForm.FullName.$touched && RegisterForm.FullName.$required">Full name is required</p>
+        <p class="bg-warning" ng-show="RegisterForm.FullName.$touched && RegisterForm.FullName.$error.maxlength">Maximum allowable length is 20</p>
+        <p class="bg-warning" ng-show="RegisterForm.FullName.$touched && RegisterForm.FullName.$error.minlength">Minimum allowable length is 6</p>
+        <p class="bg-warning" ng-show="RegisterForm.FullName.$touched && RegisterForm.FullName.$invalid">Full name is invalid</p>
+
+        <input class="form-control" type="password" name="Password" ng-model="User.Password" ng-pattern='/(?=.*\d)(?=.*[a-zA-Z]).{2,100}$/' placeholder="Password" ng-maxlength="100" ng-minlength="6" required />
+        <p class="bg-warning" ng-show="RegisterForm.Password.$touched && RegisterForm.Password.$required">Password is required</p>
+        <p class="bg-warning" ng-show="RegisterForm.Password.$touched && RegisterForm.Password.$error.maxlength">Maximum allowable length is 100</p>
+        <p class="bg-warning" ng-show="RegisterForm.Password.$touched && RegisterForm.Password.$error.minlength">Minimum allowable length is 6</p>
+        <p class="bg-warning" ng-show="RegisterForm.Password.$touched && RegisterForm.Password.$error.pattern">Password must consist of characters and digit</p>
+        <p class="bg-warning" ng-show="RegisterForm.Password.$touched && RegisterForm.Password.$invalid">Password is invalid</p>
+
+        <input class="form-control" type="password" name="ConfirmPassword" ng-model="User.ConfirmPassword" placeholder="Confirm password" ng-maxlength="100" ng-minlength="6" ng-pattern="User.Password" required />
+        <p class="bg-warning" ng-show="RegisterForm.ConfirmPassword.$touched && RegisterForm.ConfirmPassword.$required">ConfirmPassword is required</p>
+        <p class="bg-warning" ng-show="RegisterForm.ConfirmPassword.$touched && RegisterForm.ConfirmPassword.$error.maxlength">Maximum allowable length is 100</p>
+        <p class="bg-warning" ng-show="RegisterForm.ConfirmPassword.$touched && RegisterForm.ConfirmPassword.$error.minlength">Minimum allowable length is 6</p>
+        <p class="bg-warning" ng-show="RegisterForm.ConfirmPassword.$touched && RegisterForm.ConfirmPassword.$error.pattern">Password and Confirm password must be the same</p>
+        <p class="bg-warning" ng-show="RegisterForm.ConfirmPassword.$touched && RegisterForm.ConfirmPassword.$invalid">ConfirmPassword is invalid</p>
+
+        <input class="form-control btn-default" type="submit" value="Sign Up" ng-disabled="RegisterForm.$invalid || !succeeded" />
+    </form>
+    <a href="/#/login" class="btn-link">Login</a>
+</div>
